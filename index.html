@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OpenAI API Key Checker</title>
+  <style>
+    body { font-family: Arial; background: #f7f7f7; padding: 50px; text-align: center; }
+    textarea { width: 90%; height: 150px; margin-bottom: 20px; font-size: 16px; }
+    button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    #results { margin-top: 30px; font-size: 18px; }
+    .valid { color: green; }
+    .invalid { color: red; }
+  </style>
+</head>
+<body>
+
+  <h1>🔐 OpenAI API Key Checker</h1>
+  <p>Paste your API keys (one per line):</p>
+  <textarea id="apikeys" placeholder="sk-..."></textarea>
+  <br>
+  <button onclick="checkKeys()">Check Validity</button>
+  <div id="results"></div>
+
+  <script>
+    async function checkKeys() {
+      const keys = document.getElementById("apikeys").value.trim().split("\n");
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = "";
+
+      for (let key of keys) {
+        key = key.trim();
+        if (key === "") continue;
+
+        const res = await fetch("https://api.openai.com/v1/models", {
+          headers: {
+            "Authorization": Bearer ${key}
+          }
+        });
+
+        const msg = document.createElement("p");
+        if (res.status === 200) {
+          msg.textContent = ✅ VALID: ${key};
+          msg.className = "valid";
+        } else {
+          msg.textContent = ❌ INVALID or EXPIRED: ${key};
+          msg.className = "invalid";
+        }
+
+        resultsDiv.appendChild(msg);
+        await new Promise(r => setTimeout(r, 1000)); // delay to avoid rate limit
+      }
+    }
+  </script>
+</body>
+</html>
